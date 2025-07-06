@@ -1,10 +1,13 @@
-import { IHttpRequest } from '../contracts/HttpRequests';
+import { IController } from '../contracts/Controller';
 
-export class HelloController {
-  async handler(request: IHttpRequest) {
+export class HelloController implements IController<unknown> {
+  async handle(request: IController.Request): Promise<IController.Response<unknown>> {
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Hello, world!' }),
+      body: {
+        deuBom: true,
+        request,
+      },
     };
   }
 }

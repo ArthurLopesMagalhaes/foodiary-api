@@ -1,4 +1,4 @@
-import { getSchema } from '@kernel/decorators/schema';
+import { getSchema } from '@kernel/decorators/Schema';
 import z from 'zod';
 
 export abstract class Controller<TBody = undefined> {

@@ -1,3 +1,6 @@
+import { Injectable } from '@kernel/decorators/Injectable';
+
+@Injectable()
 export class HelloUseCase {
   constructor() {}
 

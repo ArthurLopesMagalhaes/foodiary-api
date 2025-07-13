@@ -35,6 +35,7 @@
       "@kernel/*": ["src/kernel/*"],                     /* Map module specifiers to relative paths. */
       "@main/*": ["src/main/*"],                         /* Map module specifiers to relative paths. */
       "@shared/*": ["src/shared/*"],                     /* Map module specifiers to relative paths. */
+      "@infra/*": ["src/infra/*"],                     /* Map module specifiers to relative paths. */
     },                                                   /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

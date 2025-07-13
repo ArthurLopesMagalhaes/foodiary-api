@@ -9,6 +9,7 @@ provider:
   runtime: nodejs22.x
   memorySize: 128
   stage: ${opt:stage, 'dev'}
+  environment: ${file(./sls/config/env.yml)}
 
 package:
   individually: true

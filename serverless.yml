@@ -30,7 +30,7 @@ custom:
 
 build:
   esbuild:
-    configFile: src/esbuild.config.mjs
+    configFile: esbuild.config.mjs
 
 functions:
   - ${file(./sls/functions/auth.yml)}

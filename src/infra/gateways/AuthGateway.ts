@@ -1,4 +1,4 @@
-import { GetTokensFromRefreshTokenCommand, InitiateAuthCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, GetTokensFromRefreshTokenCommand, InitiateAuthCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { cognitoClient } from '@infra/clients/cognitoClient';
 import { Injectable } from '@kernel/decorators/Injectable';
 import { AppConfig } from '@shared/config/AppConfig';
@@ -79,6 +79,28 @@ export class AuthGateway {
     };
   };
 
+  async forgotPassword({ email }: AuthGateway.ForgotPasswordParams): Promise<void> {
+    const command = new ForgotPasswordCommand({
+      ClientId: this.appConfig.auth.cognito.clientId,
+      Username: email,
+      SecretHash: this.getSecretHash(email),
+    });
+
+    await cognitoClient.send(command);
+  }
+
+  async confirmForgotPassword({ email, code, newPassword }: AuthGateway.ConfirmForgotPasswordParams): Promise<void> {
+    const command = new ConfirmForgotPasswordCommand({
+      ClientId: this.appConfig.auth.cognito.clientId,
+      Username: email,
+      ConfirmationCode: code,
+      Password: newPassword,
+      SecretHash: this.getSecretHash(email),
+    });
+
+    await cognitoClient.send(command);
+  }
+
   private getSecretHash(email: string) {
     const { clientId, clientSecret } = this.appConfig.auth.cognito;
     const message = `${email}${clientId}`;
@@ -108,12 +130,22 @@ export namespace AuthGateway {
     refreshToken: string;
   };
 
+  export type RefreshTokenParams = {
+    refreshToken: string;
+  };
+
   export type RefreshTokenResult = {
     accessToken: string;
     refreshToken: string;
   };
 
-  export type RefreshTokenParams = {
-    refreshToken: string;
+  export type ForgotPasswordParams = {
+    email: string;
+  };
+
+  export type ConfirmForgotPasswordParams = {
+    email: string;
+    code: string;
+    newPassword: string;
   };
 }

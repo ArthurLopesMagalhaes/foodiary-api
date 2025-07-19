@@ -1,14 +1,19 @@
-import { Column, Heading, Html, Row, Section, Text } from '@react-email/components';
+import { Column } from '@react-email/column';
+import { Heading } from '@react-email/heading';
+import { Html } from '@react-email/html';
+import { Row } from '@react-email/row';
+import { Section } from '@react-email/section';
+import { Text } from '@react-email/text';
 
 import React from 'react';
 
 import { TailwindConfig } from '@infra/emails/components/TailwindConfig';
 
 interface IForgotPasswordProps {
-  confirmationCode: string;
+  code: string;
 }
 
-export default function ForgotPassword({ confirmationCode }: IForgotPasswordProps) {
+export default function ForgotPassword({ code }: IForgotPasswordProps) {
   return (
     <TailwindConfig>
       <Html>
@@ -25,15 +30,15 @@ export default function ForgotPassword({ confirmationCode }: IForgotPasswordProp
           </Row>
 
           <Row>
-            <Column className="text-center pt-10">
+            <Column className="text-center pt-4">
               <span className="bg-gray-200 inline-block px-8 py-4 text-3xl font-sans rounded-md font-bold tracking-[16px]">
-                {confirmationCode}
+                {code}
               </span>
             </Column>
           </Row>
 
           <Row>
-            <Column className="font-sans text-center pt-10">
+            <Column className="font-sans text-center pt-4">
               <Text className="text-sm text-gray-600 ">
                 Se você não solicitou esta troca, fique tranquilo, sua conta continua segura!
               </Text>
@@ -46,5 +51,5 @@ export default function ForgotPassword({ confirmationCode }: IForgotPasswordProp
 }
 
 ForgotPassword.PreviewProps = {
-  confirmationCode: '336318',
+  code: '336318',
 };

@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { ZodError } from 'zod';
 
 import { Controller } from '@application/contracts/Controller';
@@ -8,12 +8,20 @@ import { HttpError } from '@application/errors/http/HttpError';
 import { lambdaBodyParser } from '@main/utils/lambdaBodyParser';
 import { lambdaErrorResponse } from '@main/utils/lambdaErrorResponse';
 
+type Event = APIGatewayProxyEventV2 | APIGatewayProxyEventV2WithJWTAuthorizer;
+
 export function lambdaHttpAdapter(controller: Controller<unknown>) {
-  return async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  return async (event: Event): Promise<APIGatewayProxyResultV2> => {
     try {
       const body = lambdaBodyParser(event.body);
       const params = event.pathParameters ?? {};
       const queryParams = event.queryStringParameters ?? {};
+
+      if ('authorizer' in event .requestContext) {
+        console.log(JSON.stringify({
+          internalId: event.requestContext.authorizer.jwt.claims.internalId,
+        }, null, 2));
+      }
 
       const response = await controller.execute({
         body,
@@ -30,9 +38,9 @@ export function lambdaHttpAdapter(controller: Controller<unknown>) {
         return lambdaErrorResponse({
           statusCode: 400,
           code: ErrorCode.VALIDATION,
-          message: error.errors.map((err) => ({
-            message: err.message,
-            field: err.path.join('.'),
+         message: error.issues.map(issue => ({
+            field: issue.path.join('.'),
+            error: issue.message,
           })),
         });
       }

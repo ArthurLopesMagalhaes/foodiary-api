@@ -1,9 +1,9 @@
 import KSUID from 'ksuid';
 
 export class Account {
-  public readonly id: string;
-  public readonly email: string;
-  public externalId: string | undefined;
+  readonly id: string;
+  readonly email: string;
+  externalId: string | undefined;
   readonly createdAt: Date;
 
   constructor(attributes: Account.Attributes) {

@@ -1,4 +1,4 @@
-import { ConfirmForgotPasswordCommand, ForgotPasswordCommand, GetTokensFromRefreshTokenCommand, InitiateAuthCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { AdminDeleteUserCommand, ConfirmForgotPasswordCommand, ForgotPasswordCommand, GetTokensFromRefreshTokenCommand, InitiateAuthCommand, SignUpCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { cognitoClient } from '@infra/clients/cognitoClient';
 import { Injectable } from '@kernel/decorators/Injectable';
 import { AppConfig } from '@shared/config/AppConfig';
@@ -101,6 +101,15 @@ export class AuthGateway {
     await cognitoClient.send(command);
   }
 
+  async deleteUser({ externalId }: AuthGateway.DeleteUserParams): Promise<void> {
+    const command = new AdminDeleteUserCommand({
+      UserPoolId: this.appConfig.auth.cognito.poolId,
+      Username: externalId,
+    });
+
+    await cognitoClient.send(command);
+  }
+
   private getSecretHash(email: string) {
     const { clientId, clientSecret } = this.appConfig.auth.cognito;
     const message = `${email}${clientId}`;
@@ -147,5 +156,9 @@ export namespace AuthGateway {
     email: string;
     code: string;
     newPassword: string;
+  };
+
+  export type DeleteUserParams = {
+    externalId: string;
   };
 }

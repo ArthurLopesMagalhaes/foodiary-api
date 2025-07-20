@@ -6,55 +6,70 @@ import { AccountRepository } from '@infra/database/dynamo/repositories/accountRe
 import { SignUpUnitOfWork } from '@infra/database/dynamo/uow/SignUpUnitOfWork';
 import { AuthGateway } from '@infra/gateways/AuthGateway';
 import { Injectable } from '@kernel/decorators/Injectable';
+import { Saga } from '@shared/saga/Saga';
 
 @Injectable()
 export class SignUpUseCase {
   constructor(
     private readonly authGateway: AuthGateway,
     private readonly accountRepository: AccountRepository,
-    private readonly signUpUnitOfWork: SignUpUnitOfWork,
-  ) {}
+    private readonly signUpUow: SignUpUnitOfWork,
+    private readonly saga: Saga,
+  ) { }
 
   async execute({
-    account: { email, password },
-    profile: profileInfo,
-  }: SignUpUseCase.Input): Promise<SignUpUseCase.Output> {
-    const emailAlreadyInUse = await this.accountRepository.findByEmail(email);
-    if (emailAlreadyInUse) {
-      throw new EmailAlreadyInUse();
-    }
-    const account = new Account({ email });
-    const profile = new Profile({
-      ...profileInfo,
-      accountId: account.id,
-    });
-    const goal = new Goal({
-      accountId: account.id,
-      calories: 2200,
-      carbohydrates: 172,
-      proteins: 110,
-      fats: 73,
-    });
-
-    const { externalId } = await this.authGateway.signUp({ email, password, internalId: account.id });
-
-    account.externalId = externalId;
-
-    this.signUpUnitOfWork.run({
-      account,
-      profile,
-      goal,
-    });
-
-    const { accessToken, refreshToken } = await this.authGateway.signIn({
+    account: {
       email,
       password,
-    });
+    },
+    profile: profileInfo,
+  }: SignUpUseCase.Input): Promise<SignUpUseCase.Output> {
+    return this.saga.run(async () => {
+      const emailAlreadyInUse = await this.accountRepository.findByEmail(email);
 
-    return {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    };
+      if (emailAlreadyInUse) {
+        throw new EmailAlreadyInUse();
+      }
+
+      const account = new Account({ email });
+      const profile = new Profile({
+        ...profileInfo,
+        accountId: account.id,
+      });
+
+      const goal = new Goal({
+        accountId: account.id,
+        calories: 400,
+        carbohydrates: 400,
+        fats: 400,
+        proteins: 400,
+      });
+
+      const { externalId } = await this.authGateway.signUp({
+        email,
+        password,
+        internalId: account.id,
+      });
+      this.saga.addCompensation(() => this.authGateway.deleteUser({ externalId }));
+
+      account.externalId = externalId;
+
+      await this.signUpUow.run({
+        account,
+        goal,
+        profile,
+      });
+
+      const {
+        accessToken,
+        refreshToken,
+      } = await this.authGateway.signIn({ email, password });
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    });
   }
 }
 
@@ -63,7 +78,7 @@ export namespace SignUpUseCase {
     account: {
       email: string;
       password: string;
-    }
+    };
     profile: {
       name: string;
       birthDate: Date;
@@ -71,8 +86,8 @@ export namespace SignUpUseCase {
       height: number;
       weight: number;
       activityLevel: Profile.ActivityLevel;
-    }
-  }
+    };
+  };
 
   export type Output = {
     accessToken: string;

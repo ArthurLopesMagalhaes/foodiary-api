@@ -14,10 +14,7 @@ export class GoalRepository {
 
     return {
       TableName: this.config.db.dynamodb.mainTable,
-      Item: {
-        ...goalItem.toItem(),
-        PK: undefined,
-      },
+      Item: goalItem.toItem(),
     };
   }
 

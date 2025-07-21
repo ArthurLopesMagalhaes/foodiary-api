@@ -15,6 +15,7 @@ export const signUpSchema = z.object({
     gender: z.nativeEnum(Profile.Gender, { message: '"gender" must be one of: MALE, FEMALE' }),
     height: z.number().min(0, '"height" must be a positive number'),
     weight: z.number().min(0, '"weight" must be a positive number'),
+    goal: z.nativeEnum(Profile.Goal, { message: '"goal" must be one of: LOSE, MAINTAIN, GAIN' }),
     activityLevel: z.nativeEnum(Profile.ActivityLevel, { message: '"activityLevel" must be one of: SEDENTARY, LIGHT, MODERATE, HEAVY, ATHLETE' }),
   }),
 });

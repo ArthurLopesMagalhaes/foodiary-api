@@ -1,0 +1,7 @@
+createMeal:
+  handler: src/main/functions/accounts/getMe.handler
+  events:
+    - httpApi:
+        method: GET
+        path: /me
+        authorizer: CognitoAuthorizer

@@ -1,4 +1,4 @@
-createMeal:
+getMe:
   handler: src/main/functions/accounts/getMe.handler
   events:
     - httpApi:

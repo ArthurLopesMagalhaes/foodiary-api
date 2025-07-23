@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { CreateMealController } from '@application/controllers/auth/meals/CreateMealController';
+import { CreateMealController } from '@application/controllers/meals/CreateMealController';
 import { Registry } from '@kernel/di/Registry';
 import { lambdaHttpAdapter } from '@main/adapters/lambdaHttpAdapter';
 

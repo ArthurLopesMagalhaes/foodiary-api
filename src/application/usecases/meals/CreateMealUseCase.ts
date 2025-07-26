@@ -1,29 +1,43 @@
 import { Meal } from '@application/entities/Meal';
 import { MealRepository } from '@infra/database/dynamo/repositories/mealRepository';
+import { MealsFileStorageGateway } from '@infra/gateways/MealsFileStorageGateway';
 import { Injectable } from '@kernel/decorators/Injectable';
 
 @Injectable()
 export class CreateMealUseCase {
   constructor(
     private readonly mealRepository: MealRepository,
+    private readonly mealsFileStorageGateway: MealsFileStorageGateway,
   ) {}
 
   async execute({
     accountId,
     file,
   }: CreateMealUseCase.Input): Promise<CreateMealUseCase.Output> {
+    const inputFileKey = MealsFileStorageGateway.generateInputFileKey({
+      accountId,
+      inputType: file.inputType,
+    });
 
     const meal = new Meal({
       accountId,
       inputType: file.inputType,
       status: Meal.Status.UPLOADING,
-      inputFileKey: 'q345r6t7y8u9i0o',
+      inputFileKey,
     });
 
-    await this.mealRepository.create(meal);
+    const [, { uploadSignature }] = await Promise.all([
+      this.mealRepository.create(meal),
+      this.mealsFileStorageGateway.createPOST({
+          fileKey: inputFileKey,
+          fileSize: file.size,
+          inputType: file.inputType,
+      }),
+    ]);
 
     return {
       mealId: meal.id,
+      uploadSignature,
     };
   }
 }
@@ -39,5 +53,6 @@ export namespace CreateMealUseCase {
 
   export type Output = {
     mealId: string;
+    uploadSignature: string;
   };
 }

@@ -22,14 +22,14 @@ export class AccountItem {
     };
   }
 
-  static fromEntity(account: Account): AccountItem {
+  static fromEntity(account: Account) {
     return new AccountItem({
       ...account,
       createdAt: account.createdAt.toISOString(),
     });
   }
 
-  static toEntity(accountItem: AccountItem.ItemType): Account {
+  static toEntity(accountItem: AccountItem.ItemType) {
     return new Account({
       id: accountItem.id,
       email: accountItem.email,

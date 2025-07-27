@@ -42,6 +42,8 @@ export class GetProfileAndGoalQuery {
 
     const { Items = [] } = await dynamoClient.send(command);
 
+    console.log({ PK: AccountItem.getPK(accountId), SK: AccountItem.getPK(accountId) });
+
     const profile = Items.find((item): item is GetProfileAndGoalQuery.ProfileItemType => (
       item.type === ProfileItem.type
     ));

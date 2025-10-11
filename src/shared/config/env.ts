@@ -11,6 +11,9 @@ export const schema = z.object({
 
   // Buckets
   MEALS_BUCKET: z.string().min(1, 'MEALS_BUCKET is required'),
+
+  // Buckets
+  MEALS_QUEUE_URL: z.string().min(1, 'MEALS_QUEUE_URL is required'),
 });
 
 export const env = schema.parse(process.env);
